@@ -42,10 +42,10 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
 
   if (url.includes('drive.google.com')) {
     return (
-      <div className={`relative w-full ${aspectRatio || 'aspect-[9/16]'} ${className}`}>
+      <div className={`relative w-full overflow-hidden win95-inset ${aspectRatio || 'aspect-[9/16]'} ${className}`}>
         <iframe
           src={embedUrl}
-          className="absolute inset-0 w-full h-full border-none win95-inset"
+          className="absolute left-0 w-full h-[calc(100%+48px)] -top-[48px] border-none"
           allow="autoplay; fullscreen"
           loading="lazy"
         />

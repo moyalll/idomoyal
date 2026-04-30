@@ -48,7 +48,7 @@ export const portfolioData: PortfolioData = {
     {
       id: "bv2",
       name: "iCount AI Launch",
-      mediaUrl: "", // PASTE_LINK
+      mediaUrl: "https://drive.google.com/file/d/17fJyABpQBtR6OrporAx5KPczTkyL3FF3/view?usp=sharing",
       description: "AI feature launch video",
     },
     {

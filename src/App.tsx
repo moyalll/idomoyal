@@ -25,13 +25,6 @@ import { Sticker } from './components/Sticker';
 import { portfolioData } from './data';
 
 export default function App() {
-  const [showError, setShowError] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowError(true), 2000);
-    return () => clearTimeout(timer);
-  }, []);
-
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -171,7 +164,7 @@ export default function App() {
                   viewport={{ once: true, margin: "-100px" }}
                 >
                   <RetroWindow title={bv.name} className="max-w-4xl mx-auto shadow-2xl">
-                    <div className="grid md:grid-cols-2 gap-8 items-center p-2">
+                    <div className="grid md:grid-cols-2 gap-8 items-start p-2">
                       <div className="order-2 md:order-1 space-y-6">
                         <h3 className="text-4xl font-display font-bold text-win-blue">{bv.name}</h3>
                         <div className="win95-inset bg-gray-50/50 p-4 border-l-4 border-retro-cyan">
@@ -187,9 +180,6 @@ export default function App() {
                       <div className="order-1 md:order-2">
                          <div className="group relative">
                             <MediaHandler url={bv.mediaUrl} aspectRatio="aspect-video" />
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 pointer-events-none">
-                               <Play size={64} className="text-white fill-white drop-shadow-lg" />
-                            </div>
                          </div>
                       </div>
                     </div>
@@ -403,37 +393,6 @@ export default function App() {
           </div>
         </section>
 
-        {/* Global Error Animatepresence */}
-        <AnimatePresence>
-          {showError && (
-            <motion.div 
-              initial={{ scale: 0, rotate: -20 }}
-              animate={{ scale: 1, rotate: 0 }}
-              exit={{ scale: 0 }}
-              className="fixed top-20 right-8 z-[200] max-w-[300px]"
-            >
-              <RetroWindow title="System.Notification" onClose={() => setShowError(false)} className="bg-retro-yellow/5">
-                 <div className="flex items-start gap-4">
-                    <div className="bg-retro-yellow p-1 shrink-0 win95-inset">
-                       <AlertTriangle size={32} className="text-black" />
-                    </div>
-                    <div className="space-y-4">
-                       <div>
-                          <p className="font-bold text-sm tracking-tight">ATTENTION_REQUIRED</p>
-                          <p className="text-[10px] uppercase font-mono mt-1 opacity-70 italic text-win-blue leading-tight">Your vision and my creative workflow are a binary match.</p>
-                       </div>
-                       <button 
-                        onClick={() => setShowError(false)}
-                        className="win95-button w-full font-bold text-xs"
-                       >
-                         ACKNOWLEDGE
-                       </button>
-                    </div>
-                 </div>
-              </RetroWindow>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </main>
 
       <footer className="w-full py-20 flex flex-col items-center gap-8 border-t border-white/10 mt-24">
