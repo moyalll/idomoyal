@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=Pixelify+Sans:wght@400;700&family=Inter:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-pixel: "Pixelify Sans", cursive;
+  
+  --color-win-grey: #c0c0c0;
+  --color-win-blue: #000080;
+  --color-win-border-light: #ffffff;
+  --color-win-border-dark: #808080;
+  --color-win-border-darker: #000000;
+  
+  --color-retro-pink: #ff00ff;
+  --color-retro-cyan: #00ffff;
+  --color-retro-green: #00ff00;
+  --color-retro-yellow: #ffff00;
+}
+
+@layer base {
+  body {
+    @apply bg-[#008080] text-black font-sans overflow-x-hidden;
+    background-image: radial-gradient(circle at 2px 2px, rgba(0,0,0,0.1) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+}
+
+@layer components {
+  .win95-outset {
+    box-shadow: inset 1px 1px var(--color-win-border-light), 
+                inset -1px -1px var(--color-win-border-dark),
+                1px 1px var(--color-win-border-darker);
+  }
+  
+  .win95-inset {
+    box-shadow: inset 1px 1px var(--color-win-border-dark), 
+                inset -1px -1px var(--color-win-border-light),
+                -1px -1px var(--color-win-border-darker);
+  }
+
+  .win95-button {
+    @apply px-4 py-1 bg-win-grey transition-all;
+    box-shadow: inset 1px 1px var(--color-win-border-light), 
+                inset -1px -1px var(--color-win-border-dark),
+                1px 1px var(--color-win-border-darker);
+  }
+
+  .win95-button:active {
+    box-shadow: inset 1px 1px var(--color-win-border-dark), 
+                inset -1px -1px var(--color-win-border-light),
+                -1px -1px var(--color-win-border-darker);
+  }
+
+  .win95-window {
+    @apply bg-win-grey p-1;
+    box-shadow: inset 1px 1px var(--color-win-border-light), 
+                inset -1px -1px var(--color-win-border-dark),
+                1px 1px var(--color-win-border-darker);
+  }
+
+  .win95-title-bar {
+    @apply bg-win-blue text-white px-2 py-1 flex items-center justify-between font-bold text-sm select-none;
+  }
+
+  .win95-scroll-area {
+    @apply bg-white overflow-auto;
+    box-shadow: inset 1px 1px var(--color-win-border-dark), 
+                inset -1px -1px var(--color-win-border-light),
+                -1px -1px var(--color-win-border-darker);
+  }
+}
+
+/* Custom scrollbar to look retro */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: #dfdfdf;
+  box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  box-shadow: inset 1px 1px #fff, inset -1px -1px #808080;
+}
+
+::-webkit-scrollbar-button {
+  background: #c0c0c0;
+  width: 16px;
+  height: 16px;
+  box-shadow: inset 1px 1px #fff, inset -1px -1px #808080;
+}
