@@ -15,13 +15,17 @@ import {
   MousePointer2,
   ExternalLink,
   ChevronRight,
-  Play
+  Play,
+  Trash2,
+  Globe,
+  Folder
 } from 'lucide-react';
 import { RetroWindow } from './components/RetroWindow';
 import { VideoCard } from './components/VideoCard';
 import { BrandVideoCard } from './components/BrandVideoCard';
 import { MediaHandler } from './components/MediaHandler';
 import { AntiVirusPopup } from './components/AntiVirusPopup';
+import { VibeAlert } from './components/VibeAlert';
 import { CVView } from './components/CVView';
 import { Sticker } from './components/Sticker';
 import { portfolioData } from './data';
@@ -29,6 +33,7 @@ import { portfolioData } from './data';
 export default function App() {
   const [view, setView] = useState<'main' | 'cv'>('main');
   const [showPopup, setShowPopup] = useState(false);
+  const [showVibeAlert, setShowVibeAlert] = useState(false);
   const [hasShownPopup, setHasShownPopup] = useState(false);
 
   useEffect(() => {
@@ -140,7 +145,7 @@ export default function App() {
           onClick={() => scrollTo('hero')}
           className="win95-button flex items-center gap-2 font-bold px-2 mr-4"
         >
-          <img src="https://win95icons.com/images/start-icon.png" alt="Start" className="w-5 h-5 image-pixelated" />
+          <img src="https://win98icons.alexmeub.com/icons/png/windows-0.png" alt="Start" className="w-4 h-4 image-pixelated" />
           Start
         </button>
         <div className="win95-inset h-8 flex-grow mx-2 px-2 flex items-center gap-4 overflow-x-auto no-scrollbar">
@@ -160,17 +165,66 @@ export default function App() {
       </div>
 
       <main className="container mx-auto px-4 pt-12 relative max-w-6xl">
-        {/* Sticky Decos */}
-        <div className="hidden lg:block">
-          <Sticker className="top-20 left-4" initialRotation={-15}>
-            <span className="text-4xl">🤟</span>
-          </Sticker>
-          <Sticker className="top-40 right-4" initialRotation={10}>
-            <div className="text-center p-2">
-              <div className="text-xl font-display font-bold text-win-blue">BRAIN PEEK</div>
-              <div className="text-[8px] font-mono tracking-tighter uppercase italic">Processing Ideas...</div>
+        {/* Desktop Icons */}
+        <div className="absolute top-12 left-4 z-20 flex flex-col gap-6">
+          <div 
+            onClick={() => setShowVibeAlert(true)}
+            className="flex flex-col items-center gap-1 group cursor-pointer w-20"
+          >
+            <div className="p-1 group-hover:bg-win-blue/30 rounded-sm transition-colors ring-1 ring-transparent group-hover:ring-white/20">
+              <img 
+                src="https://win98icons.alexmeub.com/icons/png/computer-3.png" 
+                alt="My Computer" 
+                className="w-8 h-8 image-pixelated"
+              />
             </div>
-          </Sticker>
+            <span className="text-[10px] font-pixel text-white bg-black/40 px-1.5 py-0.5 text-center leading-none">My Computer</span>
+          </div>
+          
+          <div 
+            onClick={() => setShowVibeAlert(true)}
+            className="flex flex-col items-center gap-1 group cursor-pointer w-20"
+          >
+            <div className="p-1 group-hover:bg-win-blue/30 rounded-sm transition-colors ring-1 ring-transparent group-hover:ring-white/20">
+              <img 
+                src="https://win98icons.alexmeub.com/icons/png/recycle_bin_empty-4.png" 
+                alt="Recycle Bin" 
+                className="w-8 h-8 image-pixelated"
+              />
+            </div>
+            <span className="text-[10px] font-pixel text-white bg-black/40 px-1.5 py-0.5 text-center leading-none">Recycle Bin</span>
+          </div>
+
+          <div 
+            onClick={() => setShowVibeAlert(true)}
+            className="flex flex-col items-center gap-1 group cursor-pointer w-20"
+          >
+            <div className="p-1 group-hover:bg-win-blue/30 rounded-sm transition-colors ring-1 ring-transparent group-hover:ring-white/20">
+              <img 
+                src="https://win98icons.alexmeub.com/icons/png/msie1-1.png" 
+                alt="The Internet" 
+                className="w-8 h-8 image-pixelated"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "https://win98icons.alexmeub.com/icons/png/world-2.png";
+                }}
+              />
+            </div>
+            <span className="text-[10px] font-pixel text-white bg-black/40 px-1.5 py-0.5 text-center leading-none text-nowrap">The Internet</span>
+          </div>
+
+          <div 
+            onClick={() => setShowVibeAlert(true)}
+            className="flex flex-col items-center gap-1 group cursor-pointer w-20"
+          >
+            <div className="p-1 group-hover:bg-win-blue/30 rounded-sm transition-colors ring-1 ring-transparent group-hover:ring-white/20">
+              <img 
+                src="https://win98icons.alexmeub.com/icons/png/briefcase-2.png" 
+                alt="My Briefcase" 
+                className="w-8 h-8 image-pixelated"
+              />
+            </div>
+            <span className="text-[10px] font-pixel text-white bg-black/40 px-1.5 py-0.5 text-center leading-none text-nowrap">My Briefcase</span>
+          </div>
         </div>
 
         {/* Hero Section */}
@@ -414,6 +468,11 @@ export default function App() {
       <AntiVirusPopup 
         isOpen={showPopup} 
         onClose={() => setShowPopup(false)} 
+      />
+
+      <VibeAlert 
+        isOpen={showVibeAlert} 
+        onClose={() => setShowVibeAlert(false)} 
       />
     </div>
   );
