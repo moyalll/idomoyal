@@ -59,7 +59,7 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
   const embedUrl = getEmbedUrl(url);
   const isVideo = type === 'video' || (type === 'auto' && (url.includes('.mp4') || url.includes('.mov')));
   const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
-  const isGDriveImage = url.includes('drive.google.com/uc');
+
 
   if (!url) {
     return (
