@@ -260,13 +260,15 @@ export default function App() {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-16 max-w-5xl mx-auto px-4">
-             {portfolioData.brandGridVideos.map((video) => (
-               <VideoCard
-                 key={video.id}
-                 title={video.title}
-                 url={video.url}
-               />
-             ))}
+                      {portfolioData.brandGridVideos.map((video) => (
+                         <VideoCard 
+                           key={video.id} 
+                           title={video.title}
+                           url={video.url}
+                           stats={video.stats}
+                           aspectRatio="aspect-video"
+                         />
+                      ))}
           </div>
         </section>
 
@@ -314,7 +316,7 @@ export default function App() {
                   key={post.id}
                 >
                   <RetroWindow title={post.title} className="w-full">
-                    <MediaHandler url={post.imageUrl} />
+                    <MediaHandler url={post.imageUrl} aspectRatio="aspect-square" />
                   </RetroWindow>
                 </div>
              ))}

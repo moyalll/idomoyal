@@ -21,6 +21,14 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
   const getEmbedUrl = (rawUrl: string) => {
     if (!rawUrl) return "";
     
+    // Check if it's a Google Drive direct image link
+    if (rawUrl.includes('drive.google.com/uc')) {
+      const match = rawUrl.match(/id=([^&]+)/);
+      if (match && match[1]) {
+        return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1600`;
+      }
+    }
+
     // Check if it's a Google Drive link (but NOT a direct image link)
     if (rawUrl.includes('drive.google.com') && !isGDriveImage) {
       const match = rawUrl.match(/\/file\/d\/([^/]+)/);
@@ -71,11 +79,10 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
 
   if (url.includes('drive.google.com') && !isGDriveImage) {
     return (
-      <div className={`relative w-full overflow-hidden win95-inset ${aspectRatio || 'aspect-[9/16]'} bg-black ${className}`}>
+      <div className={`relative w-full overflow-hidden win95-inset bg-black ${aspectRatio || 'aspect-[9/16]'} ${className}`}>
         <iframe
           src={embedUrl}
-          style={{ width: '102%', height: '102%', left: '-1%', top: '-1%' }}
-          className="absolute border-none"
+          className="absolute inset-0 w-full h-full border-none"
           allow="autoplay; fullscreen"
           loading="lazy"
         />
@@ -146,14 +153,16 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
   }
 
   return (
-    <img 
-      src={url} 
-      alt="Portfolio media" 
-      className={`win95-inset w-full h-auto object-cover ${className}`}
-      loading="lazy"
-      onError={(e) => {
-        (e.target as HTMLImageElement).src = "https://placehold.co/400x600?text=Image+Not+Found";
-      }}
-    />
+    <div className={`overflow-hidden win95-inset bg-gray-100 ${aspectRatio || 'aspect-auto'} ${className}`}>
+      <img 
+        src={embedUrl} 
+        alt="Portfolio media" 
+        className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+        loading="lazy"
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = "https://placehold.co/400x600?text=Image+Not+Found";
+        }}
+      />
+    </div>
   );
 };

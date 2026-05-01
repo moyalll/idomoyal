@@ -10,9 +10,10 @@ interface VideoCardProps {
   url: string;
   stats?: SocialStats;
   badge?: string;
+  aspectRatio?: string;
 }
 
-export const VideoCard: React.FC<VideoCardProps> = ({ title, url, stats, badge }) => {
+export const VideoCard: React.FC<VideoCardProps> = ({ title, url, stats, badge, aspectRatio }) => {
   return (
     <RetroWindow title={title} className="w-full max-w-[320px] mx-auto">
       <div className="relative group overflow-hidden">
@@ -21,7 +22,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({ title, url, stats, badge }
             {badge}
           </div>
         )}
-        <MediaHandler url={url} />
+        <MediaHandler url={url} aspectRatio={aspectRatio} />
       </div>
       
       {stats && (
