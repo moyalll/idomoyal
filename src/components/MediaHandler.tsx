@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useRef, useId } from 'react';
+import { Play } from 'lucide-react';
 
 interface MediaHandlerProps {
   url: string;
@@ -15,9 +16,46 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
   poster,
   aspectRatio
 }) => {
+  const [isActivated, setIsActivated] = React.useState(false);
+  const instanceId = useId();
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const isGDriveImage = url.includes('drive.google.com/uc');
 
-  // Helper to handle Google Drive and YouTube links
+  useEffect(() => {
+    const handleGlobalPause = (e: any) => {
+      if (e.detail.id === instanceId) return;
+
+      // Reset activation state for iframes
+      if (isYouTube || url.includes('drive.google.com') || url.includes('tiktok.com')) {
+        setIsActivated(false);
+      }
+
+      // Pause Native Video
+      if (videoRef.current) {
+        videoRef.current.pause();
+      }
+
+      // Pause YouTube/Drive/TikTok Iframes
+      if (iframeRef.current && iframeRef.current.contentWindow) {
+        if (url.includes('youtube.com') || url.includes('youtu.be')) {
+          iframeRef.current.contentWindow.postMessage(
+            JSON.stringify({ event: 'command', func: 'pauseVideo', args: '' }),
+            '*'
+          );
+        }
+      }
+    };
+
+    window.addEventListener('video-play', handleGlobalPause);
+    return () => window.removeEventListener('video-play', handleGlobalPause);
+  }, [instanceId, url]);
+
+  const handleActivate = () => {
+    setIsActivated(true);
+    window.dispatchEvent(new CustomEvent('video-play', { detail: { id: instanceId } }));
+  };
+
   const getEmbedUrl = (rawUrl: string) => {
     if (!rawUrl) return "";
     
@@ -41,7 +79,7 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
     if (rawUrl.includes('youtube.com/playlist?list=')) {
       const match = rawUrl.match(/list=([^&]+)/);
       if (match && match[1]) {
-        return `https://www.youtube.com/embed/videoseries?list=${match[1]}&enablejsapi=1`;
+        return `https://www.youtube.com/embed/videoseries?list=${match[1]}&enablejsapi=1&autoplay=1`;
       }
     }
     
@@ -49,7 +87,7 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
     if (rawUrl.includes('youtube.com/watch?v=')) {
       const match = rawUrl.match(/v=([^&]+)/);
       if (match && match[1]) {
-        return `https://www.youtube.com/embed/${match[1]}?enablejsapi=1`;
+        return `https://www.youtube.com/embed/${match[1]}?enablejsapi=1&autoplay=1`;
       }
     }
     
@@ -57,7 +95,23 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
     if (rawUrl.includes('youtu.be/')) {
       const match = rawUrl.match(/youtu\.be\/([^?]+)/);
       if (match && match[1]) {
-        return `https://www.youtube.com/embed/${match[1]}?enablejsapi=1`;
+        return `https://www.youtube.com/embed/${match[1]}?enablejsapi=1&autoplay=1`;
+      }
+    }
+
+    // Check if it's a YouTube shorts link
+    if (rawUrl.includes('youtube.com/shorts/')) {
+      const match = rawUrl.match(/shorts\/([^?]+)/);
+      if (match && match[1]) {
+        return `https://www.youtube.com/embed/${match[1]}?enablejsapi=1&autoplay=1`;
+      }
+    }
+
+    // Check if it's a TikTok video link
+    if (rawUrl.includes('tiktok.com/')) {
+      const match = rawUrl.match(/video\/(\d+)/);
+      if (match && match[1]) {
+        return `https://www.tiktok.com/embed/v2/${match[1]}`;
       }
     }
     
@@ -77,47 +131,88 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
     );
   }
 
+  // Get Thumbnail for Overlay
+  const getThumbnailUrl = () => {
+    if (isYouTube) {
+      const match = url.match(/(?:v=|\/embed\/|\/shorts\/|youtu\.be\/)([^?&/]+)/);
+      if (match && match[1]) {
+        // Special case for ID vvW9Q0GdB4A which has broken high-res thumbnails on YT side
+        if (match[1] === 'vvW9Q0GdB4A') return `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+        return `https://img.youtube.com/vi/${match[1]}/hq720.jpg`;
+      }
+    }
+    if (url.includes('drive.google.com')) {
+      const match = url.match(/\/file\/d\/([^/]+)/) || url.match(/id=([^&]+)/);
+      if (match && (match[1] || match[0])) {
+        const id = match[1] || match[0];
+        return `https://drive.google.com/thumbnail?id=${id}&sz=w1600`;
+      }
+    }
+    return poster;
+  };
+
+  const thumbUrl = getThumbnailUrl();
+
+  // Common Overlay Component
+  const PlayOverlay = () => (
+    <div 
+      onClick={handleActivate}
+      className="absolute inset-0 z-20 cursor-pointer group/overlay flex items-center justify-center"
+    >
+      {thumbUrl && (
+        <img 
+          src={thumbUrl} 
+          alt="Thumbnail" 
+          className="absolute inset-0 w-full h-full object-cover transition-all duration-300"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            if (target.src.includes('hq720')) {
+              target.src = target.src.replace('hq720', 'maxresdefault');
+            } else if (target.src.includes('maxresdefault')) {
+              target.src = target.src.replace('maxresdefault', 'sddefault');
+            } else if (target.src.includes('sddefault')) {
+              target.src = target.src.replace('sddefault', 'hqdefault');
+            }
+          }}
+        />
+      )}
+      <div className="relative win95-button p-4 bg-win-grey group-hover/overlay:bg-win-blue group-hover/overlay:text-white transition-colors z-30">
+        <Play className="fill-current" size={32} />
+      </div>
+    </div>
+  );
+
   if (url.includes('drive.google.com') && !isGDriveImage) {
     return (
       <div className={`relative w-full overflow-hidden win95-inset bg-black ${aspectRatio || 'aspect-[9/16]'} ${className}`}>
-        <iframe
-          src={embedUrl}
-          className="absolute inset-0 w-full h-full border-none"
-          allow="autoplay; fullscreen"
-          loading="lazy"
-        />
+        {!isActivated && <PlayOverlay />}
+        {isActivated && (
+          <iframe
+            ref={iframeRef}
+            src={embedUrl}
+            className="absolute inset-0 w-full h-full border-none"
+            allow="autoplay; fullscreen"
+            loading="lazy"
+          />
+        )}
       </div>
     );
   }
 
-  if (isYouTube) {
+  if (isYouTube || url.includes('tiktok.com')) {
     return (
-      <div className={`relative w-full overflow-hidden win95-inset ${aspectRatio || 'aspect-video'} ${className}`}>
-        <iframe
-          src={embedUrl}
-          onLoad={(e) => {
-            const win = e.currentTarget.contentWindow;
-            const subscribe = () => {
-              win?.postMessage(
-                JSON.stringify({
-                  event: 'command',
-                  func: 'addEventListener',
-                  args: ['onStateChange']
-                }),
-                '*'
-              );
-            };
-            // Try immediately and again after delays to ensure the player is ready
-            subscribe();
-            setTimeout(subscribe, 500);
-            setTimeout(subscribe, 1500);
-            setTimeout(subscribe, 3000);
-          }}
-          className="absolute left-0 top-0 w-full h-full border-none"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          loading="lazy"
-        />
+      <div className={`relative w-full overflow-hidden win95-inset ${aspectRatio || (isYouTube ? 'aspect-video' : 'aspect-[9/16]')} ${className}`}>
+        {!isActivated && <PlayOverlay />}
+        {isActivated && (
+          <iframe
+            ref={iframeRef}
+            src={embedUrl}
+            className="absolute inset-0 w-full h-full border-none"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            loading="lazy"
+          />
+        )}
       </div>
     );
   }
@@ -126,27 +221,13 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
     return (
       <div className={`relative w-full overflow-hidden win95-inset ${aspectRatio || 'aspect-[9/16]'} ${className}`}>
         <video 
+          ref={videoRef}
           src={embedUrl} 
           controls 
           poster={poster}
           className="absolute left-0 top-0 w-full h-full object-cover"
           loading="lazy"
-          onPlay={(e) => {
-            // Pause other native videos
-            const videos = document.querySelectorAll('video');
-            videos.forEach((video) => {
-              if (video !== e.currentTarget) {
-                video.pause();
-              }
-            });
-            // Pause YouTube iframes
-            const iframes = document.querySelectorAll('iframe');
-            iframes.forEach((iframe) => {
-              if (iframe.src.includes('youtube.com')) {
-                iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-              }
-            });
-          }}
+          onPlay={handleActivate}
         />
       </div>
     );
@@ -157,7 +238,7 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
       <img 
         src={embedUrl} 
         alt="Portfolio media" 
-        className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+        className="w-full h-full object-cover"
         loading="lazy"
         onError={(e) => {
           (e.target as HTMLImageElement).src = "https://placehold.co/400x600?text=Image+Not+Found";

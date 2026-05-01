@@ -26,15 +26,15 @@ export const VideoCard: React.FC<VideoCardProps> = ({ title, url, stats, badge, 
       </div>
       
       {stats && (
-        <div className="mt-4 grid grid-cols-3 gap-2 font-pixel text-xs">
-          <div className="flex items-center gap-1">
-            <Play size={12} className="text-win-blue" /> {stats.views}
+        <div className="mt-4 flex justify-between items-center font-mono text-[13px] font-bold text-gray-800 px-1 border-t border-win-grey-dark/20 pt-3">
+          <div className="flex items-center gap-1.5 whitespace-nowrap">
+            <Play size={14} className="text-win-blue fill-current" /> {stats.views}
           </div>
-          <div className="flex items-center gap-1">
-            <Heart size={12} className="text-retro-pink" /> {stats.likes}
+          <div className="flex items-center gap-1.5 whitespace-nowrap">
+            <Heart size={14} className="text-retro-pink fill-current" /> {stats.likes}
           </div>
-          <div className="flex items-center gap-1">
-            <MessageCircle size={12} className="text-retro-cyan" /> {stats.comments}
+          <div className="flex items-center gap-1.5 whitespace-nowrap">
+            <MessageCircle size={14} className="text-retro-cyan" /> {stats.comments}
           </div>
         </div>
       )}

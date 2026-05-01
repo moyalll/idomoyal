@@ -174,7 +174,7 @@ export default function App() {
         </div>
 
         {/* Hero Section */}
-        <section id="hero" className="min-h-[90vh] flex flex-col items-center justify-center relative mb-24">
+        <section id="hero" className="min-h-[80vh] flex flex-col items-center justify-center relative mb-12">
           <div className="z-10 w-full max-w-4xl space-y-12">
             <div className="flex flex-col md:flex-row gap-8 items-start">
               <RetroWindow title="Greeting.exe" className="w-full md:w-3/5">
@@ -182,17 +182,17 @@ export default function App() {
                   <h1 className="text-7xl md:text-9xl font-display leading-none font-bold text-win-blue drop-shadow-[4px_4px_0px_rgba(0,0,0,0.1)]">
                     Hey :-)
                   </h1>
-                  <div className="space-y-2">
-                    <h2 className="text-2xl font-bold font-display italic underline decoration-retro-pink decoration-4">I'm {portfolioData.name},</h2>
-                    <p className="text-lg md:text-2xl font-medium leading-snug">
-                      {portfolioData.intro}
-                    </p>
-                  </div>
-                  <div className="win95-inset p-4 bg-white/40 border-l-4 border-win-blue">
-                    <p className="text-sm md:text-base font-medium leading-relaxed">
-                      {portfolioData.personality}
-                    </p>
-                  </div>
+                        <div className="space-y-4">
+                          <h2 className="text-2xl font-bold font-display italic underline decoration-retro-pink decoration-4">I'm {portfolioData.name},</h2>
+                          <p className="text-lg md:text-2xl font-medium leading-snug whitespace-pre-line">
+                            {portfolioData.intro}
+                          </p>
+                        </div>
+                        <div className="win95-inset p-4 bg-white/40 border-l-4 border-win-blue">
+                          <p className="text-sm md:text-base font-medium leading-relaxed whitespace-pre-line">
+                            {portfolioData.personality}
+                          </p>
+                        </div>
                         <div className="flex flex-wrap gap-4 pt-4">
                           <button 
                             onClick={() => setView('cv')}
@@ -217,13 +217,25 @@ export default function App() {
                 className="hidden md:block w-full md:w-2/5 pt-12"
               >
                 <RetroWindow title="Workspace.jpg" className="rotate-[3deg] hover:rotate-0 transition-transform">
-                  <div className="aspect-[4/5] bg-gray-300 win95-inset mb-2 flex items-center justify-center overflow-hidden">
-                    <img 
-                      src="/profile.jpg" 
-                      alt="Work" 
-                      className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
-                    />
-                  </div>
+                    <div className="aspect-[4/5] bg-gray-300 win95-inset mb-2 relative overflow-hidden group">
+                      {/* Direct Image Method (Preferred) */}
+                      <div 
+                        className="absolute inset-0 z-10 grayscale group-hover:grayscale-0 transition-all duration-700 bg-cover bg-center"
+                        style={{ 
+                          backgroundImage: `url(https://drive.google.com/thumbnail?id=1nSagw8SjO12tMpQ1hB4ao5LhOt41FoMY&sz=w1600)` 
+                        }}
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                      
+                      {/* Cropped Iframe Method (Fallback/UI Cleanup) */}
+                      <iframe 
+                        src="https://drive.google.com/file/d/1nSagw8SjO12tMpQ1hB4ao5LhOt41FoMY/preview"
+                        className="absolute inset-0 w-full h-full border-none pointer-events-none grayscale group-hover:grayscale-0 transition-all duration-700"
+                        allow="autoplay"
+                      />
+                    </div>
                   <div className="text-[10px] font-mono text-gray-600 text-center uppercase tracking-tighter p-2">
                     {portfolioData.about}
                   </div>
@@ -231,7 +243,7 @@ export default function App() {
               </motion.div>
             </div>
 
-            <div className="flex flex-col items-center gap-4 animate-bounce opacity-80 mt-12">
+            <div className="flex flex-col items-center gap-4 animate-bounce opacity-80 mt-6">
               <span className="font-pixel text-2xl uppercase text-white shadow-sm tracking-widest">My Portfolio</span>
               <div className="flex flex-col items-center">
                 <span className="text-xs font-mono text-white mb-2">just keep scrolling</span>
@@ -251,7 +263,7 @@ export default function App() {
 
           <div className="flex flex-col items-center gap-4 mt-32 text-center">
             <h2 className="text-5xl md:text-7xl font-display font-bold uppercase text-white drop-shadow-xl tracking-tight">
-              Brand Works
+              Reel Talk
             </h2>
             <div className="bg-win-grey win95-outset px-6 py-2 font-mono text-sm text-win-blue font-bold border-2 border-win-blue">
                iCount, Strauss Ice Cream, Toyota, Visa Cal, AlArz Tahini.
@@ -260,15 +272,15 @@ export default function App() {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-16 max-w-5xl mx-auto px-4">
-                      {portfolioData.brandGridVideos.map((video) => (
-                         <VideoCard 
-                           key={video.id} 
-                           title={video.title}
-                           url={video.url}
-                           stats={video.stats}
-                           aspectRatio="aspect-video"
-                         />
-                      ))}
+            {portfolioData.brandGridVideos.map((video) => (
+               <VideoCard 
+                 key={video.id} 
+                 title={video.title}
+                 url={video.url}
+                 stats={video.stats}
+                 aspectRatio="aspect-[9/16]"
+               />
+            ))}
           </div>
         </section>
 
@@ -285,13 +297,14 @@ export default function App() {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto px-4 justify-items-center">
             {portfolioData.socialVideos.map((video) => (
               <VideoCard 
                 key={video.id}
                 title={video.title}
                 url={video.url}
                 stats={video.stats}
+                aspectRatio="aspect-[9/16]"
               />
             ))}
           </div>
@@ -310,13 +323,14 @@ export default function App() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-7xl mx-auto">
+          <div className="columns-1 md:columns-2 lg:columns-3 gap-8 w-full max-w-7xl mx-auto space-y-8">
              {portfolioData.socialPosts.map((post) => (
                 <div
                   key={post.id}
+                  className="break-inside-avoid"
                 >
                   <RetroWindow title={post.title} className="w-full">
-                    <MediaHandler url={post.imageUrl} aspectRatio="aspect-square" />
+                    <MediaHandler url={post.imageUrl} aspectRatio="aspect-auto" />
                   </RetroWindow>
                 </div>
              ))}
