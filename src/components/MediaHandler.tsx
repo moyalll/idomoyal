@@ -15,12 +15,14 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
   poster,
   aspectRatio
 }) => {
+  const isGDriveImage = url.includes('drive.google.com/uc');
+
   // Helper to handle Google Drive and YouTube links
   const getEmbedUrl = (rawUrl: string) => {
     if (!rawUrl) return "";
     
-    // Check if it's a Google Drive link
-    if (rawUrl.includes('drive.google.com')) {
+    // Check if it's a Google Drive link (but NOT a direct image link)
+    if (rawUrl.includes('drive.google.com') && !isGDriveImage) {
       const match = rawUrl.match(/\/file\/d\/([^/]+)/);
       if (match && match[1]) {
         return `https://drive.google.com/file/d/${match[1]}/preview`;
@@ -57,6 +59,7 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
   const embedUrl = getEmbedUrl(url);
   const isVideo = type === 'video' || (type === 'auto' && (url.includes('.mp4') || url.includes('.mov')));
   const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+  const isGDriveImage = url.includes('drive.google.com/uc');
 
   if (!url) {
     return (
@@ -66,7 +69,7 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
     );
   }
 
-  if (url.includes('drive.google.com')) {
+  if (url.includes('drive.google.com') && !isGDriveImage) {
     return (
       <div className={`relative w-full overflow-hidden win95-inset ${aspectRatio || 'aspect-[9/16]'} bg-black ${className}`}>
         <iframe
