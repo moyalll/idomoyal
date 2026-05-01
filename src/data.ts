@@ -3,7 +3,7 @@ import { PortfolioData } from './types';
 export const portfolioData: PortfolioData = {
   name: "Ido Moyal",
   intro: "Copywriter, content creator, and a nerd of all things cool.",
-  personality: "I was raised in the rural north. now I live Downtown.\nIn love with Kendrick Lamar and cry to the Beatles.\nGrew up in hookah bars - feels at home at Poetry Slams.",
+  personality: "I was raised in the rural north. now I live Downtown.\nIn love with Kendrick Lamar but will cry to Wicked the Musical.\nGrew up in hookah bars - feels at home at Poetry Slams.",
   about: "Welcome! Take a peek into my brain :-) or what's left of it...",
   cvUrl: "https://www.idomoyal.com/encv",
   contact: {
@@ -37,19 +37,20 @@ export const portfolioData: PortfolioData = {
       id: "bv1",
       name: "iCount Master Launch",
       mediaUrl: "https://youtu.be/G3VkLewushk",
-      description: "iCount's newest subscription tier includes an online accountant",
+      description: "Introducing iCount Master\nThe ultimate business management suite, now with digital accounting - all in one system.",
     },
     {
       id: "bv2",
       name: "iCount AI Launch",
       mediaUrl: "https://youtu.be/fuSLzBxz2eU",
-      description: "AI feature launch video",
+      description: "An embedded AI assistant designed to save you time and deliver the insights you actually need.",
+      footerImage: "https://drive.google.com/thumbnail?id=1_jT5dMd8TGTpCJm7SwtP-otjIxDyytXW&sz=w1000",
     },
     {
       id: "bv_kids",
       name: "iCount Kids",
       mediaUrl: "https://www.youtube.com/watch?v=Ai3CLbsHfjo",
-      description: 'The perfect playlist for kids of "solopreneurs"',
+      description: 'The perfect playlist for kids of "solopreneurs." Created with Suno, written by a human.',
       playlist: [
         { id: "pl1", title: "עכשיו כולנו עצמאים 💪", mediaUrl: "https://www.youtube.com/watch?v=Ai3CLbsHfjo" },
         { id: "pl2", title: "מר מע\"מ וגברת שומה 👩‍❤️‍👨", mediaUrl: "https://www.youtube.com/watch?v=LxYeKT5K1xk" },

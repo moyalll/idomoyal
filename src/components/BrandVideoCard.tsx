@@ -23,7 +23,7 @@ export const BrandVideoCard: React.FC<BrandVideoCardProps> = ({ bv }) => {
           <div className="order-2 md:order-1 md:col-span-5 space-y-6">
             <h3 className="text-4xl font-display font-bold text-win-blue">{bv.name}</h3>
             <div className="win95-inset bg-gray-50/50 p-4 border-l-4 border-retro-cyan">
-              <p className="text-base font-medium text-gray-700 leading-relaxed">
+              <p className="text-base font-medium text-gray-700 leading-relaxed whitespace-pre-line">
                 {bv.description}
               </p>
             </div>
@@ -52,10 +52,22 @@ export const BrandVideoCard: React.FC<BrandVideoCardProps> = ({ bv }) => {
               </div>
             )}
 
-            <div className="flex gap-3">
-               <span className="win95-button text-[12px] uppercase font-bold px-3 py-1 bg-retro-yellow/10">Campaign.exe</span>
-               <span className="win95-button text-[12px] uppercase font-bold px-3 py-1 bg-retro-cyan/10">Production.sh</span>
-            </div>
+            {bv.footerImage ? (
+              <div className="pt-2 w-full">
+                <div className="win95-inset p-1 bg-white/50 block rounded-sm w-full overflow-hidden">
+                  <img 
+                    src={bv.footerImage} 
+                    alt="Project Detail" 
+                    className="w-full h-auto object-cover image-pixelated"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-3">
+                 <span className="win95-button text-[12px] uppercase font-bold px-3 py-1 bg-retro-yellow/10">Campaign.exe</span>
+                 <span className="win95-button text-[12px] uppercase font-bold px-3 py-1 bg-retro-cyan/10">Production.sh</span>
+              </div>
+            )}
           </div>
           <div className="order-1 md:order-2 md:col-span-7">
             {bv.mediaUrls && bv.mediaUrls.length > 0 ? (

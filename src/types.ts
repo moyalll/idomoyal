@@ -26,6 +26,7 @@ export interface BrandContent {
   mediaUrls?: string[];
   description: string;
   playlist?: PlaylistItem[];
+  footerImage?: string;
 }
 
 export interface SocialPostContent {

@@ -35,6 +35,8 @@ export default function App() {
   const [showPopup, setShowPopup] = useState(false);
   const [showVibeAlert, setShowVibeAlert] = useState(false);
   const [hasShownPopup, setHasShownPopup] = useState(false);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+
 
   useEffect(() => {
     if (view !== 'main' || hasShownPopup) return;
@@ -58,6 +60,21 @@ export default function App() {
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const copySection = document.getElementById('copy');
+      if (copySection) {
+        const rect = copySection.getBoundingClientRect();
+        // Show hint when user has scrolled past the top of the "Posts" section
+        setShowScrollHint(rect.top < 0);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
 
   useEffect(() => {
     // 1. YouTube API postMessage listener (fallback)
@@ -140,6 +157,23 @@ export default function App() {
             className="pb-24"
           >
             {/* Taskbar */}
+      {/* Navigation Hint */}
+      <AnimatePresence>
+        {showScrollHint && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-16 left-4 z-[110] flex flex-col items-center animate-bounce pointer-events-none"
+          >
+            <div className="win95-outset bg-retro-yellow px-4 py-2 text-xs font-pixel text-black border-2 border-black shadow-lg whitespace-nowrap">
+              WANNA GO UP? CLICK START
+            </div>
+            <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[12px] border-t-black mt-[-1px] rotate-180" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="fixed bottom-0 left-0 right-0 h-10 bg-win-grey win95-outset z-[100] flex items-center px-1">
         <button 
           onClick={() => scrollTo('hero')}
@@ -150,10 +184,13 @@ export default function App() {
         </button>
         <div className="win95-inset h-8 flex-grow mx-2 px-2 flex items-center gap-4 overflow-x-auto no-scrollbar">
           <button onClick={() => scrollTo('brands')} className="win95-button flex items-center gap-2 text-xs truncate max-w-[120px]">
-             Brands
+             Campaigns
+          </button>
+          <button onClick={() => scrollTo('reels')} className="win95-button flex items-center gap-2 text-xs truncate max-w-[120px]">
+             Reels
           </button>
           <button onClick={() => scrollTo('social')} className="win95-button flex items-center gap-2 text-xs truncate max-w-[120px]">
-             Social
+             Content
           </button>
           <button onClick={() => scrollTo('copy')} className="win95-button flex items-center gap-2 text-xs truncate max-w-[120px]">
              Posts
@@ -164,9 +201,9 @@ export default function App() {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 pt-12 relative max-w-6xl">
+      <main className="container mx-auto px-4 pt-32 md:pt-12 relative max-w-6xl">
         {/* Desktop Icons */}
-        <div className="absolute top-12 left-4 z-20 flex flex-col gap-6">
+        <div className="absolute top-4 md:top-12 left-0 right-0 md:right-auto md:left-4 z-20 flex flex-row md:flex-col justify-center md:justify-start gap-2 md:gap-6 px-4 md:px-0">
           <div 
             onClick={() => setShowVibeAlert(true)}
             className="flex flex-col items-center gap-1 group cursor-pointer w-20"
@@ -231,7 +268,7 @@ export default function App() {
         <section id="hero" className="min-h-[80vh] flex flex-col items-center justify-center relative mb-12">
           <div className="z-10 w-full max-w-4xl space-y-12">
             <div className="flex flex-col md:flex-row gap-8 items-start">
-              <RetroWindow title="Greeting.exe" className="w-full md:w-3/5">
+              <RetroWindow title="Greeting.exe" className="w-full md:w-[62%] flex-shrink-0">
                 <div className="space-y-6">
                   <h1 className="text-7xl md:text-9xl font-display leading-none font-bold text-win-blue drop-shadow-[4px_4px_0px_rgba(0,0,0,0.1)]">
                     Hey :-)
@@ -268,7 +305,7 @@ export default function App() {
               <motion.div 
                 initial={{ x: 50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                className="hidden md:block w-full md:w-2/5 pt-12"
+                className="hidden md:block w-full md:w-[38%] pt-12"
               >
                 <RetroWindow title="Workspace.jpg" className="rotate-[3deg] hover:rotate-0 transition-transform">
                     <div className="aspect-[4/5] bg-gray-300 win95-inset mb-2 relative overflow-hidden group">
@@ -315,7 +352,7 @@ export default function App() {
              ))}
           </div>
 
-          <div className="flex flex-col items-center gap-4 mt-32 text-center">
+          <div id="reels" className="flex flex-col items-center gap-4 mt-32 text-center">
             <h2 className="text-5xl md:text-7xl font-display font-bold uppercase text-white drop-shadow-xl tracking-tight">
               Reel Talk
             </h2>
@@ -432,13 +469,7 @@ export default function App() {
                   </a>
                 </div>
                 
-                <div className="pt-12">
-                   <div className="win95-inset bg-white p-2 inline-block">
-                      <p className="text-[11px] font-pixel text-gray-500 uppercase tracking-widest px-4">
-                        ESTD 2024 | ALL RIGHTS BELONG TO THE CULTURE
-                      </p>
-                   </div>
-                </div>
+
               </div>
             </RetroWindow>
           </div>
@@ -446,21 +477,7 @@ export default function App() {
 
       </main>
 
-      <footer className="w-full py-20 flex flex-col items-center gap-8 border-t border-white/10 mt-24">
-        <div className="flex gap-10 opacity-30 text-white">
-          <Monitor size={24} />
-          <MousePointer2 size={24} />
-          <AlertTriangle size={24} />
-        </div>
-        <div className="text-center space-y-2">
-          <p className="text-xs font-mono text-white/60 tracking-[0.2em] font-bold">
-            MADE WITH TOO MANY TABS OPEN.
-          </p>
-          <p className="text-[9px] font-pixel text-white/40">
-            RUNNING VERSION 1.0.95-STABLE
-          </p>
-        </div>
-      </footer>
+
           </motion.div>
         )}
       </AnimatePresence>
