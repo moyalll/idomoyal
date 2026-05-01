@@ -19,19 +19,122 @@ import {
 } from 'lucide-react';
 import { RetroWindow } from './components/RetroWindow';
 import { VideoCard } from './components/VideoCard';
+import { BrandVideoCard } from './components/BrandVideoCard';
 import { MediaHandler } from './components/MediaHandler';
-import { WorkflowPipeline } from './components/WorkflowPipeline';
+import { AntiVirusPopup } from './components/AntiVirusPopup';
+import { CVView } from './components/CVView';
 import { Sticker } from './components/Sticker';
 import { portfolioData } from './data';
 
 export default function App() {
+  const [view, setView] = useState<'main' | 'cv'>('main');
+  const [showPopup, setShowPopup] = useState(false);
+  const [hasShownPopup, setHasShownPopup] = useState(false);
+
+  useEffect(() => {
+    if (view !== 'main' || hasShownPopup) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShowPopup(true);
+          setHasShownPopup(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const socialSection = document.getElementById('social');
+    if (socialSection) observer.observe(socialSection);
+
+    return () => observer.disconnect();
+  }, [view, hasShownPopup]);
+
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  useEffect(() => {
+    // 1. YouTube API postMessage listener (fallback)
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== 'https://www.youtube.com') return;
+      try {
+        let data;
+        if (typeof event.data === 'string') {
+          data = JSON.parse(event.data);
+        } else if (typeof event.data === 'object' && event.data !== null) {
+          data = event.data;
+        } else {
+          return;
+        }
+        
+        // Auto-subscribe when iframe announces it is ready
+        if (data.event === 'initialDelivery' || data.event === 'infoDelivery' || data.event === 'onReady') {
+          if (event.source && typeof (event.source as Window).postMessage === 'function') {
+            (event.source as Window).postMessage(JSON.stringify({
+              event: 'command',
+              func: 'addEventListener',
+              args: ['onStateChange']
+            }), '*');
+          }
+        }
+        
+        // YouTube player state 1 means playing
+        if (data.event === 'onStateChange' && data.info === 1) {
+          document.querySelectorAll('video').forEach((video) => video.pause());
+          document.querySelectorAll('iframe').forEach((iframe) => {
+            if (iframe.src.includes('youtube.com') && iframe.contentWindow !== event.source) {
+              iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            }
+          });
+        }
+      } catch (e) {
+        // Ignore parsing errors
+      }
+    };
+
+    // 2. Blur trick: Detect when user clicks into any iframe (like YouTube) and pause native videos
+    const handleBlur = () => {
+      // Small timeout to allow document.activeElement to update
+      setTimeout(() => {
+        if (document.activeElement instanceof HTMLIFrameElement) {
+          document.querySelectorAll('video').forEach((video) => video.pause());
+          
+          // We can also pause OTHER iframes here, but we don't know which one was clicked 
+          // without comparing activeElement.
+          const activeIframe = document.activeElement;
+          document.querySelectorAll('iframe').forEach((iframe) => {
+            if (iframe !== activeIframe && iframe.src.includes('youtube.com')) {
+              iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            }
+          });
+        }
+      }, 0);
+    };
+
+    window.addEventListener('message', handleMessage);
+    window.addEventListener('blur', handleBlur);
+    
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen text-black bg-[#008080] pb-24 selection:bg-retro-pink selection:text-white">
-      {/* Taskbar */}
+    <div className="min-h-screen bg-[#008080] selection:bg-retro-pink selection:text-white">
+      <AnimatePresence mode="wait">
+        {view === 'cv' ? (
+          <CVView key="cv" onBack={() => setView('main')} />
+        ) : (
+          <motion.div 
+            key="main"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="pb-24"
+          >
+            {/* Taskbar */}
       <div className="fixed bottom-0 left-0 right-0 h-10 bg-win-grey win95-outset z-[100] flex items-center px-1">
         <button 
           onClick={() => scrollTo('hero')}
@@ -48,10 +151,7 @@ export default function App() {
              Social
           </button>
           <button onClick={() => scrollTo('copy')} className="win95-button flex items-center gap-2 text-xs truncate max-w-[120px]">
-             Copy
-          </button>
-          <button onClick={() => scrollTo('ai')} className="win95-button flex items-center gap-2 text-xs truncate max-w-[120px]">
-             AI
+             Posts
           </button>
         </div>
         <div className="win95-inset px-4 h-8 flex items-center text-xs font-pixel bg-gray-200">
@@ -93,22 +193,20 @@ export default function App() {
                       {portfolioData.personality}
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-4 pt-4">
-                    <a 
-                      href={portfolioData.cvUrl} 
-                      target="_blank" 
-                      rel="no-referrer"
-                      className="win95-button flex items-center gap-2 !bg-win-blue !text-white px-8 py-3 font-bold no-underline"
-                    >
-                      <Download size={20} /> My CV
-                    </a>
-                    <button 
-                      onClick={() => scrollTo('contact')}
-                      className="win95-button flex items-center gap-2 px-8 py-3 font-bold"
-                    >
-                      <Mail size={20} /> Contact me
-                    </button>
-                  </div>
+                        <div className="flex flex-wrap gap-4 pt-4">
+                          <button 
+                            onClick={() => setView('cv')}
+                            className="win95-button flex items-center gap-2 !bg-win-blue !text-white px-8 py-3 font-bold no-underline"
+                          >
+                            <Download size={20} /> My CV
+                          </button>
+                          <button 
+                            onClick={() => scrollTo('contact')}
+                            className="win95-button flex items-center gap-2 px-8 py-3 font-bold"
+                          >
+                            <Mail size={20} /> Contact me
+                          </button>
+                        </div>
                 </div>
               </RetroWindow>
 
@@ -121,7 +219,7 @@ export default function App() {
                 <RetroWindow title="Workspace.jpg" className="rotate-[3deg] hover:rotate-0 transition-transform">
                   <div className="aspect-[4/5] bg-gray-300 win95-inset mb-2 flex items-center justify-center overflow-hidden">
                     <img 
-                      src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=500&auto=format" 
+                      src="/profile.jpg" 
                       alt="Work" 
                       className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                     />
@@ -144,57 +242,40 @@ export default function App() {
         </section>
 
         {/* Featured Projects / Brands */}
-        <section id="brands" className="mb-64">
-          <div className="flex flex-col items-center gap-4 mb-20 text-center">
+        <section id="brands" className="mb-24">
+          <div className="space-y-12">
+             {portfolioData.brandVideos.map((bv) => (
+                <BrandVideoCard key={bv.id} bv={bv} />
+             ))}
+          </div>
+
+          <div className="flex flex-col items-center gap-4 mt-32 text-center">
             <h2 className="text-5xl md:text-7xl font-display font-bold uppercase text-white drop-shadow-xl tracking-tight">
               Brand Works
             </h2>
             <div className="bg-win-grey win95-outset px-6 py-2 font-mono text-sm text-win-blue font-bold border-2 border-win-blue">
-               iCount, Strauss Ice Cream, AlArz Tahini, Toyota, Visa Cal.
+               iCount, Strauss Ice Cream, Toyota, Visa Cal, AlArz Tahini.
             </div>
             <p className="text-sm font-mono text-white mt-4 italic">Writing, filming, production, and editing.</p>
           </div>
-
-          <div className="space-y-32">
-             {portfolioData.brandVideos.map((bv, idx) => (
-                <motion.div 
-                  key={bv.id}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                >
-                  <RetroWindow title={bv.name} className="max-w-4xl mx-auto shadow-2xl">
-                    <div className="grid md:grid-cols-2 gap-8 items-start p-2">
-                      <div className="order-2 md:order-1 space-y-6">
-                        <h3 className="text-4xl font-display font-bold text-win-blue">{bv.name}</h3>
-                        <div className="win95-inset bg-gray-50/50 p-4 border-l-4 border-retro-cyan">
-                          <p className="text-base font-medium text-gray-700 leading-relaxed">
-                            {bv.description}
-                          </p>
-                        </div>
-                        <div className="flex gap-3">
-                           <span className="win95-button text-[12px] uppercase font-bold px-3 py-1 bg-retro-yellow/10">Campaign.exe</span>
-                           <span className="win95-button text-[12px] uppercase font-bold px-3 py-1 bg-retro-cyan/10">Production.sh</span>
-                        </div>
-                      </div>
-                      <div className="order-1 md:order-2">
-                         <div className="group relative">
-                            <MediaHandler url={bv.mediaUrl} aspectRatio="aspect-video" />
-                         </div>
-                      </div>
-                    </div>
-                  </RetroWindow>
-                </motion.div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-16 max-w-5xl mx-auto px-4">
+             {portfolioData.brandGridVideos.map((video) => (
+               <VideoCard
+                 key={video.id}
+                 title={video.title}
+                 url={video.url}
+               />
              ))}
           </div>
         </section>
 
         {/* Social Content */}
-        <section id="social" className="mb-64">
+        <section id="social" className="mb-24">
           <div className="flex flex-col items-center gap-6 mb-20 text-center">
              <div className="rotate-[-1deg]">
                 <h2 className="text-5xl md:text-8xl font-display font-bold uppercase text-retro-pink drop-shadow-[4px_4px_0px_white] tracking-tighter">
-                  Social Content
+                  Content Creation
                 </h2>
              </div>
             <div className="win95-inset bg-white px-6 py-2 font-mono text-xs font-bold text-win-blue uppercase">
@@ -214,135 +295,35 @@ export default function App() {
           </div>
         </section>
 
-        {/* Copywriting Section */}
-        <section id="copy" className="mb-64">
-          <div className="flex flex-col items-center mb-16">
+        {/* Social Posts Section */}
+        <section id="copy" className="mb-24 px-4">
+          <div className="flex flex-col items-center mb-16 text-center">
             <div className="bg-retro-cyan text-black px-8 py-3 rotate-[-1.5deg] win95-outset z-10 border-2 border-black/10">
               <h2 className="text-4xl md:text-5xl font-display font-bold uppercase tracking-widest">
-                Script Room
+                Social Posts
               </h2>
             </div>
-            <p className="text-sm font-mono mt-6 text-white drop-shadow-md bg-black/20 px-4 py-1">
-              A messy desktop full of social media copywriting...
+            <p className="text-sm font-mono mt-6 text-white drop-shadow-md bg-black/20 px-4 py-1 max-w-xl">
+              A curated collection of social media content and copywriting...
             </p>
           </div>
 
-          <div className="relative h-[700px] w-full overflow-hidden win95-inset bg-[#006666] border-4 border-win-grey/50 shadow-inner">
-             {portfolioData.copywriting.map((copy, idx) => (
-                <motion.div
-                  key={copy.id}
-                  drag
-                  dragConstraints={{ left: 0, right: 900, top: 0, bottom: 500 }}
-                  initial={{ 
-                    x: 100 + (idx * 200), 
-                    y: 100 + (idx * 40),
-                    rotate: (idx % 2 === 0 ? 4 : -4)
-                  }}
-                  whileHover={{ zIndex: 50, scale: 1.02 }}
-                  className="absolute cursor-move drop-shadow-2xl"
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-7xl mx-auto">
+             {portfolioData.socialPosts.map((post) => (
+                <div
+                  key={post.id}
                 >
-                  <RetroWindow title={copy.title} className="w-[300px] md:w-[360px]">
-                    <MediaHandler url={copy.imageUrl} />
+                  <RetroWindow title={post.title} className="w-full">
+                    <MediaHandler url={post.imageUrl} />
                   </RetroWindow>
-                </motion.div>
+                </div>
              ))}
-             
-             <div className="absolute bottom-6 left-6 flex flex-col gap-10 pointer-events-none opacity-20 group">
-                <div className="flex flex-col items-center gap-2">
-                  <Monitor size={48} className="text-white" />
-                  <span className="text-[12px] text-white font-mono uppercase">Drafts</span>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <FileText size={48} className="text-white" />
-                  <span className="text-[12px] text-white font-mono uppercase">Ideas_Trash</span>
-                </div>
-             </div>
           </div>
         </section>
 
-        {/* AI Workflow Section */}
-        <section id="ai" className="mb-64">
-          <RetroWindow title="AI_Production_Optimization.sys" className="max-w-5xl mx-auto border-4 border-retro-green/30">
-            <div className="grid md:grid-cols-2 gap-12 p-6">
-              <div className="space-y-8">
-                <div className="flex items-center gap-4">
-                  <div className="p-2 bg-retro-green/10 rounded-lg">
-                    <Cpu className="text-retro-green animate-pulse" size={32} />
-                  </div>
-                  <h2 className="text-4xl font-display font-bold text-win-blue underline group-hover:no-underline transition-all cursor-default">AI Production</h2>
-                </div>
-                <div className="space-y-4">
-                  {[
-                    "GPT-based fact-checking assistant for scripts",
-                    "AI-driven wording corrections pre-filming",
-                    "Optimized filming rig with integrated teleprompter",
-                    "Direct-to-SSD recording pipeline",
-                    "Gling.ai for automated first-pass cleanup",
-                    "Manual AI enhancement with Captions.ai"
-                  ].map((bullet, i) => (
-                    <motion.div 
-                      key={i} 
-                      whileHover={{ x: 10 }}
-                      className="flex items-start gap-3 p-2 bg-win-grey/30 win95-inset"
-                    >
-                      <span className="text-retro-green font-bold text-lg">{">"}</span>
-                      <span className="text-sm font-bold uppercase tracking-tight leading-tight">{bullet}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-              <div className="flex flex-col justify-between">
-                <div className="win95-inset bg-black p-6 mb-8 shadow-[inset_0_0_20px_rgba(0,255,128,0.3)]">
-                  <p className="text-retro-green font-mono text-xs space-y-1">
-                    <span className="block opacity-50"># Initializing AI Pipeline...</span>
-                    <span className="block text-retro-cyan font-bold tracking-widest uppercase mt-4">Status: Optimal</span>
-                    <span className="block mt-2">Efficiency_Gain: +240%</span>
-                    <span className="block">Human_Touch: Maintained</span>
-                    <span className="block opacity-70 mt-4 animate-pulse underline decoration-1 underline-offset-4 cursor-default">-- RELEASING FOR RENDER --</span>
-                  </p>
-                </div>
-                <WorkflowPipeline />
-              </div>
-            </div>
-          </RetroWindow>
-        </section>
 
-        {/* Article Section */}
-        <section id="articles" className="mb-64">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-16">
-            <h2 className="text-6xl md:text-8xl font-display font-bold text-white drop-shadow-[5px_5px_0px_#00ffff]">Opinions</h2>
-            <div className="flex items-center gap-4 bg-win-blue text-white px-6 py-2 win95-outset rotate-[2deg]">
-               <FileText size={24} />
-               <span className="font-pixel text-xl uppercase tracking-tighter">Read & Learn</span>
-            </div>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {portfolioData.articles.map(article => (
-              <a 
-                key={article.id} 
-                href={article.link} 
-                target="_blank" 
-                rel="no-referrer"
-                className="block group no-underline"
-              >
-                <RetroWindow title={article.publication} className="group-hover:translate-x-3 group-hover:-translate-y-3 transition-transform duration-300">
-                  <div className="space-y-4">
-                    <div className="overflow-hidden win95-inset grayscale group-hover:grayscale-0 transition-all duration-500">
-                      <img src={article.imageUrl} className="w-full aspect-video object-cover" />
-                    </div>
-                    <h3 className="text-2xl font-bold font-display leading-tight group-hover:text-win-blue transition-colors">
-                      {article.title}
-                    </h3>
-                    <div className="flex justify-between text-[11px] font-mono border-t border-gray-200 pt-3">
-                       <span className="font-bold opacity-60 uppercase">{article.date}</span>
-                       <span className="flex items-center gap-1 font-bold text-retro-pink">CLICK_TO_READ <ExternalLink size={12} /></span>
-                    </div>
-                  </div>
-                </RetroWindow>
-              </a>
-            ))}
-          </div>
-        </section>
+
+
 
         {/* Contact Section */}
         <section id="contact" className="mb-24 px-4">
@@ -410,6 +391,14 @@ export default function App() {
           </p>
         </div>
       </footer>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AntiVirusPopup 
+        isOpen={showPopup} 
+        onClose={() => setShowPopup(false)} 
+      />
     </div>
   );
 }

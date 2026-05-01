@@ -1,10 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=Pixelify+Sans:wght@400;700&family=Inter:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'W95FA';
+  src: url('/fonts/w95fa/w95f.woff2') format('woff2'),
+       url('/fonts/w95fa/w95f.woff') format('woff'),
+       url('/fonts/w95fa/W95F.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
-  --font-pixel: "Pixelify Sans", cursive;
+  --font-pixel: "W95FA", cursive;
   
   --color-win-grey: #c0c0c0;
   --color-win-blue: #000080;

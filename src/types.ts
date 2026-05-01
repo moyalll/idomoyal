@@ -13,14 +13,22 @@ export interface VideoContent {
   description?: string;
 }
 
+export interface PlaylistItem {
+  id: string;
+  title: string;
+  mediaUrl: string;
+}
+
 export interface BrandContent {
   id: string;
   name: string;
   mediaUrl: string;
+  mediaUrls?: string[];
   description: string;
+  playlist?: PlaylistItem[];
 }
 
-export interface CopywritingContent {
+export interface SocialPostContent {
   id: string;
   title: string;
   imageUrl: string;
@@ -49,6 +57,7 @@ export interface PortfolioData {
   };
   socialVideos: VideoContent[];
   brandVideos: BrandContent[];
-  copywriting: CopywritingContent[];
+  brandGridVideos: VideoContent[];
+  socialPosts: SocialPostContent[];
   articles: ArticleContent[];
 }

@@ -15,7 +15,7 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
   poster,
   aspectRatio
 }) => {
-  // Helper to handle Google Drive links
+  // Helper to handle Google Drive and YouTube links
   const getEmbedUrl = (rawUrl: string) => {
     if (!rawUrl) return "";
     
@@ -26,11 +26,37 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
         return `https://drive.google.com/file/d/${match[1]}/preview`;
       }
     }
+    
+    // Check if it's a YouTube playlist link
+    if (rawUrl.includes('youtube.com/playlist?list=')) {
+      const match = rawUrl.match(/list=([^&]+)/);
+      if (match && match[1]) {
+        return `https://www.youtube.com/embed/videoseries?list=${match[1]}&enablejsapi=1`;
+      }
+    }
+    
+    // Check if it's a standard YouTube video link
+    if (rawUrl.includes('youtube.com/watch?v=')) {
+      const match = rawUrl.match(/v=([^&]+)/);
+      if (match && match[1]) {
+        return `https://www.youtube.com/embed/${match[1]}?enablejsapi=1`;
+      }
+    }
+    
+    // Check if it's a YouTube short link (youtu.be)
+    if (rawUrl.includes('youtu.be/')) {
+      const match = rawUrl.match(/youtu\.be\/([^?]+)/);
+      if (match && match[1]) {
+        return `https://www.youtube.com/embed/${match[1]}?enablejsapi=1`;
+      }
+    }
+    
     return rawUrl;
   };
 
   const embedUrl = getEmbedUrl(url);
-  const isVideo = type === 'video' || (type === 'auto' && (url.includes('.mp4') || url.includes('.mov') || url.includes('drive.google.com')));
+  const isVideo = type === 'video' || (type === 'auto' && (url.includes('.mp4') || url.includes('.mov')));
+  const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
 
   if (!url) {
     return (
@@ -42,11 +68,44 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
 
   if (url.includes('drive.google.com')) {
     return (
-      <div className={`relative w-full overflow-hidden win95-inset ${aspectRatio || 'aspect-[9/16]'} ${className}`}>
+      <div className={`relative w-full overflow-hidden win95-inset ${aspectRatio || 'aspect-[9/16]'} bg-black ${className}`}>
         <iframe
           src={embedUrl}
-          className="absolute left-0 w-full h-[calc(100%+48px)] -top-[48px] border-none"
+          style={{ width: '102%', height: '102%', left: '-1%', top: '-1%' }}
+          className="absolute border-none"
           allow="autoplay; fullscreen"
+          loading="lazy"
+        />
+      </div>
+    );
+  }
+
+  if (isYouTube) {
+    return (
+      <div className={`relative w-full overflow-hidden win95-inset ${aspectRatio || 'aspect-video'} ${className}`}>
+        <iframe
+          src={embedUrl}
+          onLoad={(e) => {
+            const win = e.currentTarget.contentWindow;
+            const subscribe = () => {
+              win?.postMessage(
+                JSON.stringify({
+                  event: 'command',
+                  func: 'addEventListener',
+                  args: ['onStateChange']
+                }),
+                '*'
+              );
+            };
+            // Try immediately and again after delays to ensure the player is ready
+            subscribe();
+            setTimeout(subscribe, 500);
+            setTimeout(subscribe, 1500);
+            setTimeout(subscribe, 3000);
+          }}
+          className="absolute left-0 top-0 w-full h-full border-none"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
           loading="lazy"
         />
       </div>
@@ -55,13 +114,31 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
 
   if (isVideo) {
     return (
-      <video 
-        src={url} 
-        controls 
-        poster={poster}
-        className={`win95-inset w-full h-auto ${className}`}
-        loading="lazy"
-      />
+      <div className={`relative w-full overflow-hidden win95-inset ${aspectRatio || 'aspect-[9/16]'} ${className}`}>
+        <video 
+          src={embedUrl} 
+          controls 
+          poster={poster}
+          className="absolute left-0 top-0 w-full h-full object-cover"
+          loading="lazy"
+          onPlay={(e) => {
+            // Pause other native videos
+            const videos = document.querySelectorAll('video');
+            videos.forEach((video) => {
+              if (video !== e.currentTarget) {
+                video.pause();
+              }
+            });
+            // Pause YouTube iframes
+            const iframes = document.querySelectorAll('iframe');
+            iframes.forEach((iframe) => {
+              if (iframe.src.includes('youtube.com')) {
+                iframe.contentWindow?.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+              }
+            });
+          }}
+        />
+      </div>
     );
   }
 
