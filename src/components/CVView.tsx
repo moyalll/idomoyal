@@ -32,7 +32,7 @@ export const CVView: React.FC<CVViewProps> = ({ onBack }) => {
               <span>Ido_Moyal_CV.pdf</span>
             </div>
             <a 
-              href="https://drive.google.com/uc?export=download&id=1U4KPDfegzJ3_SXEBS6qmsBk_UIekWUZj" 
+              href="https://drive.google.com/uc?export=download&id=1OVX01egYUW4Z9VxRLbQMBEHhCLM8c_uw" 
               className="win95-button flex items-center gap-2 text-xs font-bold px-4 py-1"
             >
               <Download size={14} /> Download
@@ -41,7 +41,7 @@ export const CVView: React.FC<CVViewProps> = ({ onBack }) => {
           
           <div className="flex-grow win95-inset bg-white overflow-hidden relative">
             <iframe 
-              src="https://drive.google.com/file/d/1U4KPDfegzJ3_SXEBS6qmsBk_UIekWUZj/preview" 
+              src="https://drive.google.com/file/d/1OVX01egYUW4Z9VxRLbQMBEHhCLM8c_uw/preview" 
               className="absolute top-0 left-0 w-full h-full border-none"
               allow="autoplay"
               title="CV Document"

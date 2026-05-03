@@ -5,7 +5,7 @@ export const portfolioData: PortfolioData = {
   intro: "Copywriter, content creator, and a nerd of all things cool.",
   personality: "I was raised in the rural north. now I live Downtown.\nIn love with Kendrick Lamar but will cry to Wicked the Musical.\nGrew up in hookah bars - feels at home at Poetry Slams.",
   about: "Welcome! Take a peek into my brain :-) or what's left of it...",
-  cvUrl: "https://www.idomoyal.com/encv",
+  cvUrl: "https://drive.google.com/file/d/1OVX01egYUW4Z9VxRLbQMBEHhCLM8c_uw/view",
   contact: {
     email: "idomoyal23@gmail.com",
     phone: "052-6601167",
