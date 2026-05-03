@@ -17,6 +17,7 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
   aspectRatio
 }) => {
   const [isActivated, setIsActivated] = React.useState(false);
+  const [imageError, setImageError] = React.useState(false);
   const instanceId = useId();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -121,6 +122,7 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
   const embedUrl = getEmbedUrl(url);
   const isVideo = type === 'video' || (type === 'auto' && (url.includes('.mp4') || url.includes('.mov')));
   const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
+  const isGDrive = url.includes('drive.google.com');
 
 
   if (!url) {
@@ -182,18 +184,32 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
     </div>
   );
 
-  if (url.includes('drive.google.com') && !isGDriveImage) {
+  // Use Iframe for Google Drive content (more reliable than direct image links)
+  if (isGDrive) {
+    const driveId = url.split('id=')[1]?.split('&')[0] || url.split('/d/')[1]?.split('/')[0];
+    const previewUrl = `https://drive.google.com/file/d/${driveId}/preview`;
+    // Using lh3.googleusercontent.com which is the most robust direct link format
+    const directUrl = `https://lh3.googleusercontent.com/d/${driveId}`;
+
     return (
-      <div className={`relative w-full overflow-hidden win95-inset bg-black ${aspectRatio || 'aspect-[9/16]'} ${className}`}>
-        {!isActivated && <PlayOverlay />}
-        {isActivated && (
-          <iframe
-            ref={iframeRef}
-            src={embedUrl}
-            className="absolute inset-0 w-full h-full border-none"
-            allow="autoplay; fullscreen"
-            loading="lazy"
+      <div className={`relative w-full win95-inset bg-white ${className}`}>
+        {!imageError ? (
+          <img 
+            src={directUrl}
+            alt="Portfolio Content"
+            className="w-full h-auto block"
+            style={{ minHeight: '100px' }}
+            onError={() => setImageError(true)}
           />
+        ) : (
+          <div className="aspect-[3/4] w-full relative">
+            <iframe
+              src={previewUrl}
+              className="absolute inset-0 w-full h-full border-none"
+              allow="autoplay"
+              loading="lazy"
+            />
+          </div>
         )}
       </div>
     );
@@ -240,9 +256,6 @@ export const MediaHandler: React.FC<MediaHandlerProps> = ({
         alt="Portfolio media" 
         className="w-full h-full object-cover"
         loading="lazy"
-        onError={(e) => {
-          (e.target as HTMLImageElement).src = "https://placehold.co/400x600?text=Image+Not+Found";
-        }}
       />
     </div>
   );

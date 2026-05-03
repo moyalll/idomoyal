@@ -5,9 +5,10 @@ import { X, Info } from 'lucide-react';
 interface VibeAlertProps {
   isOpen: boolean;
   onClose: () => void;
+  message?: string;
 }
 
-export const VibeAlert: React.FC<VibeAlertProps> = ({ isOpen, onClose }) => {
+export const VibeAlert: React.FC<VibeAlertProps> = ({ isOpen, onClose, message }) => {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -22,7 +23,7 @@ export const VibeAlert: React.FC<VibeAlertProps> = ({ isOpen, onClose }) => {
             initial={{ scale: 0.9, opacity: 0, x: '-50%', y: '-50%' }}
             animate={{ scale: 1, opacity: 1, x: '-50%', y: '-50%' }}
             exit={{ scale: 0.9, opacity: 0, x: '-50%', y: '-50%' }}
-            className="fixed top-1/2 left-1/2 z-[120] w-fit min-w-[420px] bg-win-grey border-2 win95-window shadow-2xl"
+            className="fixed top-1/2 left-1/2 z-[120] w-fit min-w-[320px] max-w-[450px] bg-win-grey border-2 win95-window shadow-2xl"
           >
             {/* Title Bar */}
             <div className="win95-title-bar flex justify-between items-center px-1 py-0.5 m-0.5">
@@ -39,7 +40,7 @@ export const VibeAlert: React.FC<VibeAlertProps> = ({ isOpen, onClose }) => {
             </div>
 
             {/* Content */}
-            <div className="p-4 px-8 flex gap-4 items-center">
+            <div className="p-4 px-6 flex gap-4 items-center">
               <div className="shrink-0">
                 <img 
                   src="https://win98icons.alexmeub.com/icons/png/msg_information-2.png" 
@@ -47,9 +48,9 @@ export const VibeAlert: React.FC<VibeAlertProps> = ({ isOpen, onClose }) => {
                   className="w-8 h-8 image-pixelated"
                 />
               </div>
-              <div className="space-y-6 flex-grow">
-                <p className="text-sm font-pixel leading-none whitespace-nowrap pt-1">
-                  don't push it.. i'm vibe coding not Bill Gates
+              <div className="space-y-4 flex-grow">
+                <p className="text-sm font-mono leading-relaxed pt-1">
+                  {message || "don't push it.. i'm vibe coding not Bill Gates"}
                 </p>
                 <div className="flex justify-center">
                   <button 

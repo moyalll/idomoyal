@@ -34,6 +34,12 @@ export default function App() {
   const [view, setView] = useState<'main' | 'cv'>('main');
   const [showPopup, setShowPopup] = useState(false);
   const [showVibeAlert, setShowVibeAlert] = useState(false);
+  const [vibeAlertMessage, setVibeAlertMessage] = useState("");
+
+  const triggerVibeAlert = (msg: string) => {
+    setVibeAlertMessage(msg);
+    setShowVibeAlert(true);
+  };
   const [hasShownPopup, setHasShownPopup] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(false);
 
@@ -205,7 +211,7 @@ export default function App() {
         {/* Desktop Icons */}
         <div className="absolute top-4 md:top-12 left-0 right-0 md:right-auto md:left-4 z-20 flex flex-row md:flex-col justify-center md:justify-start gap-2 md:gap-6 px-4 md:px-0">
           <div 
-            onClick={() => setShowVibeAlert(true)}
+            onClick={() => triggerVibeAlert("Don't push it... I'm vibe coding, not Bill Gates.")}
             className="flex flex-col items-center gap-1 group cursor-pointer w-20"
           >
             <div className="p-1 group-hover:bg-win-blue/30 rounded-sm transition-colors ring-1 ring-transparent group-hover:ring-white/20">
@@ -219,7 +225,7 @@ export default function App() {
           </div>
           
           <div 
-            onClick={() => setShowVibeAlert(true)}
+            onClick={() => triggerVibeAlert("Here you'll find a lot of good ideas and empty Monster Energy cans.")}
             className="flex flex-col items-center gap-1 group cursor-pointer w-20"
           >
             <div className="p-1 group-hover:bg-win-blue/30 rounded-sm transition-colors ring-1 ring-transparent group-hover:ring-white/20">
@@ -233,24 +239,24 @@ export default function App() {
           </div>
 
           <div 
-            onClick={() => setShowVibeAlert(true)}
+            onClick={() => triggerVibeAlert("The thing that raised me.")}
             className="flex flex-col items-center gap-1 group cursor-pointer w-20"
           >
             <div className="p-1 group-hover:bg-win-blue/30 rounded-sm transition-colors ring-1 ring-transparent group-hover:ring-white/20">
               <img 
                 src="https://win98icons.alexmeub.com/icons/png/msie1-1.png" 
-                alt="The Internet" 
+                alt="Internet Explorer" 
                 className="w-8 h-8 image-pixelated"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "https://win98icons.alexmeub.com/icons/png/world-2.png";
                 }}
               />
             </div>
-            <span className="text-[10px] font-pixel text-white bg-black/40 px-1.5 py-0.5 text-center leading-none text-nowrap">The Internet</span>
+            <span className="text-[10px] font-pixel text-white bg-black/40 px-1.5 py-0.5 text-center leading-none text-nowrap">Internet Explorer</span>
           </div>
 
           <div 
-            onClick={() => setShowVibeAlert(true)}
+            onClick={() => triggerVibeAlert("I'm not sure what this feature did back then, but it looks cool.")}
             className="flex flex-col items-center gap-1 group cursor-pointer w-20"
           >
             <div className="p-1 group-hover:bg-win-blue/30 rounded-sm transition-colors ring-1 ring-transparent group-hover:ring-white/20">
@@ -307,28 +313,16 @@ export default function App() {
                 animate={{ x: 0, opacity: 1 }}
                 className="hidden md:block w-full md:w-[38%] pt-12"
               >
-                <RetroWindow title="Workspace.jpg" className="rotate-[3deg] hover:rotate-0 transition-transform">
+                <RetroWindow title="Me.jpg" className="rotate-[3deg] hover:rotate-0 transition-transform">
                     <div className="aspect-[4/5] bg-gray-300 win95-inset mb-2 relative overflow-hidden group">
-                      {/* Direct Image Method (Preferred) */}
-                      <div 
-                        className="absolute inset-0 z-10 grayscale group-hover:grayscale-0 transition-all duration-700 bg-cover bg-center"
-                        style={{ 
-                          backgroundImage: `url(https://drive.google.com/thumbnail?id=1nSagw8SjO12tMpQ1hB4ao5LhOt41FoMY&sz=w1600)` 
-                        }}
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = 'none';
-                        }}
-                      />
-                      
-                      {/* Cropped Iframe Method (Fallback/UI Cleanup) */}
-                      <iframe 
-                        src="https://drive.google.com/file/d/1nSagw8SjO12tMpQ1hB4ao5LhOt41FoMY/preview"
-                        className="absolute inset-0 w-full h-full border-none pointer-events-none grayscale group-hover:grayscale-0 transition-all duration-700"
-                        allow="autoplay"
+                      <MediaHandler 
+                        url="https://drive.google.com/file/d/1nSagw8SjO12tMpQ1hB4ao5LhOt41FoMY" 
+                        className="grayscale group-hover:grayscale-0 transition-all duration-700 pointer-events-none"
+                        aspectRatio="aspect-[4/5]"
                       />
                     </div>
                   <div className="text-[10px] font-mono text-gray-600 text-center uppercase tracking-tighter p-2">
-                    {portfolioData.about}
+                    Yup, that's me
                   </div>
                 </RetroWindow>
               </motion.div>
@@ -414,17 +408,18 @@ export default function App() {
             </p>
           </div>
 
-          <div className="columns-1 md:columns-2 lg:columns-3 gap-8 w-full max-w-7xl mx-auto space-y-8">
-             {portfolioData.socialPosts.map((post) => (
-                <div
-                  key={post.id}
-                  className="break-inside-avoid"
-                >
-                  <RetroWindow title={post.title} className="w-full">
-                    <MediaHandler url={post.imageUrl} aspectRatio="aspect-auto" />
-                  </RetroWindow>
-                </div>
-             ))}
+          <div className="flex flex-col md:flex-row gap-8 w-full max-w-7xl mx-auto items-start">
+            {[0, 1, 2].map((colIndex) => (
+              <div key={colIndex} className="flex-1 space-y-8 w-full">
+                {portfolioData.socialPosts
+                  .filter((_, idx) => idx % 3 === colIndex)
+                  .map((post) => (
+                    <RetroWindow key={post.id} title={post.title} className="w-full">
+                      <MediaHandler url={post.imageUrl} aspectRatio="aspect-auto" />
+                    </RetroWindow>
+                  ))}
+              </div>
+            ))}
           </div>
         </section>
 
@@ -490,6 +485,7 @@ export default function App() {
       <VibeAlert 
         isOpen={showVibeAlert} 
         onClose={() => setShowVibeAlert(false)} 
+        message={vibeAlertMessage}
       />
     </div>
   );
