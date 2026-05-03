@@ -182,17 +182,17 @@ export default function App() {
           <img src="https://win98icons.alexmeub.com/icons/png/windows-0.png" alt="Start" className="w-4 h-4 image-pixelated" />
           Start
         </button>
-        <div className="win95-inset h-8 flex-grow mx-2 px-2 flex items-center gap-4 overflow-x-auto no-scrollbar">
-          <button onClick={() => scrollTo('brands')} className="win95-button flex items-center gap-2 text-xs truncate max-w-[120px]">
+        <div className="win95-inset h-8 flex-grow mx-1 md:mx-2 px-1 md:px-2 flex items-center gap-1 md:gap-4 overflow-x-auto no-scrollbar">
+          <button onClick={() => scrollTo('brands')} className="win95-button flex-1 md:flex-none flex items-center justify-center gap-1 md:gap-2 text-[10px] md:text-xs px-1 md:px-4 min-w-0">
              Campaigns
           </button>
-          <button onClick={() => scrollTo('reels')} className="win95-button flex items-center gap-2 text-xs truncate max-w-[120px]">
+          <button onClick={() => scrollTo('reels')} className="win95-button flex-1 md:flex-none flex items-center justify-center gap-1 md:gap-2 text-[10px] md:text-xs px-1 md:px-4 min-w-0">
              Reels
           </button>
-          <button onClick={() => scrollTo('social')} className="win95-button flex items-center gap-2 text-xs truncate max-w-[120px]">
+          <button onClick={() => scrollTo('social')} className="win95-button flex-1 md:flex-none flex items-center justify-center gap-1 md:gap-2 text-[10px] md:text-xs px-1 md:px-4 min-w-0">
              Content
           </button>
-          <button onClick={() => scrollTo('copy')} className="win95-button flex items-center gap-2 text-xs truncate max-w-[120px]">
+          <button onClick={() => scrollTo('copy')} className="win95-button flex-1 md:flex-none flex items-center justify-center gap-1 md:gap-2 text-[10px] md:text-xs px-1 md:px-4 min-w-0">
              Posts
           </button>
         </div>
