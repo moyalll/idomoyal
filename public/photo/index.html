@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Moyal - Photography</title>
+  <meta name="description" content="Moyal Photography — portfolio." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script>if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light";</script>
+</head>
+<body>
+  <header class="nav" id="nav">
+    <a href="#top" class="brand" id="brand-link">MOYAL PHOTOGRAPHY</a>
+    <div class="nav-actions">
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark / light mode">
+        <span class="toggle-thumb"></span>
+        <span class="toggle-icon i-sun">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </span>
+        <span class="toggle-icon i-moon">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </span>
+      </button>
+      <button class="btn-contact" id="contact-btn">Contact</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="intro" id="intro">
+      <div class="intro-text">
+        <h1>Moyal<br />Photography</h1>
+        <!-- ✏️ כאן אפשר לשנות את הטקסט עליך -->
+        <p class="bio">
+          Photographer based in Israel. Capturing light, people and quiet moments.
+        </p>
+        <a href="#gallery" class="link-arrow" id="view-work">View work →</a>
+      </div>
+      <div class="intro-photo-wrap">
+      <figure class="intro-photo" id="intro-photo">
+        <!-- 📷 התמונה שלך: mebw.jpg בשחור-לבן, ו-me.jpg בצבע שתיחשף במעבר עכבר -->
+        <img src="mebw.jpg" alt="Moyal holding a camera (B&W)" class="me-bw" id="me-bw-img" onerror="this.parentElement.classList.add('missing')" />
+        <img src="me.jpg" alt="Moyal holding a camera" class="me-color" id="me-img" onerror="this.parentElement.classList.add('missing')" />
+      </figure>
+      </div>
+    </section>
+
+    <section class="gallery-wrap" id="gallery">
+      <div class="section-head">
+        <h2>Work</h2>
+      </div>
+      <nav class="filters" id="filters">
+        <button class="filter active" data-cat="all" id="filter-all">All</button>
+        <button class="filter" data-cat="street" id="filter-street">Street &amp; Travel</button>
+        <button class="filter" data-cat="family" id="filter-family">Family</button>
+        <button class="filter" data-cat="night" id="filter-night">Night</button>
+        <button class="filter" data-cat="places" id="filter-places">Places</button>
+      </nav>
+      <div class="gallery" id="gallery-grid"></div>
+    </section>
+  </main>
+
+  <footer class="footer" id="footer">
+    <span>© <span id="year"></span> Moyal Photography</span>
+    <a href="https://instagram.com/mashber30" target="_blank" rel="noopener" id="instagram-link">Instagram — @mashber30</a>
+  </footer>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lb-close" id="lb-close" aria-label="Close">Close</button>
+    <button class="lb-nav lb-prev" id="lb-prev" aria-label="Previous">←</button>
+    <div class="lb-track" id="lb-track"></div>
+    <button class="lb-nav lb-next" id="lb-next" aria-label="Next">→</button>
+    <span class="lb-counter" id="lb-counter"></span>
+  </div>
+
+  <div class="modal" id="contact-modal" aria-hidden="true">
+    <div class="modal-card">
+      <button class="lb-close" id="contact-close" aria-label="Close">Close</button>
+      <h3>Contact</h3>
+      <p>For bookings and collaborations:</p>
+      <a class="btn-primary" id="contact-ig" href="https://ig.me/m/mashber30" target="_blank" rel="noopener">Message on Instagram</a>
+    </div>
+  </div>
+
+  <script src="photos.js"></script>
+  <script src="categories.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
